@@ -11,6 +11,12 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
    * pointer/role/keyboard wiring. Static cards stay flat (no false lift).
    */
   interactive?: boolean;
+  /**
+   * Add a soft brand gradient sheen + deeper "pop" shadow that fade in on hover,
+   * WITHOUT the clickable role/keyboard wiring. For inviting, tappable surfaces
+   * (catalog/course/programme cards) whose click is handled by a child link.
+   */
+  sheen?: boolean;
 }
 
 const pad: Record<NonNullable<CardProps["padding"]>, string> = {
@@ -21,10 +27,13 @@ const pad: Record<NonNullable<CardProps["padding"]>, string> = {
 };
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(function Card(
-  { padding = "md", interactive = false, className, children, onClick, ...props },
+  { padding = "md", interactive = false, sheen = false, className, children, onClick, ...props },
   ref,
 ) {
   const clickable = interactive || onClick != null;
+  // `sheen` gives the inviting hover treatment without the button semantics —
+  // used for cards whose click is delegated to a child link.
+  const sheeny = sheen && !clickable;
   return (
     <div
       ref={ref}
@@ -46,24 +55,28 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(function Card(
         "relative rounded-card border border-line bg-card shadow-card",
         clickable
           ? "lift card-interactive group cursor-pointer overflow-hidden hover:border-blue/30 hover:shadow-pop active:translate-y-0 active:shadow-lift"
-          : "hover:border-blue/20",
+          : sheeny
+            ? "group overflow-hidden lift-pop hover:border-blue/30"
+            : "hover:border-blue/20",
         pad[padding],
         className,
       )}
       {...props}
     >
-      {clickable && (
+      {(clickable || sheeny) && (
         <>
-          {/* Brand accent-bar reveals along the top edge on hover. */}
-          <span
-            aria-hidden
-            className="accent-bar-grad pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 opacity-0 transition-[transform,opacity] duration-[var(--dur-base)] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100 group-hover:opacity-100"
-          />
+          {/* Brand accent-bar reveals along the top edge on hover (clickable only). */}
+          {clickable && (
+            <span
+              aria-hidden
+              className="accent-bar-grad pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 opacity-0 transition-[transform,opacity] duration-[var(--dur-base)] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100 group-hover:opacity-100"
+            />
+          )}
           {/* Whisper-soft gradient sheen fades in on hover. */}
-          <span aria-hidden className="card-sheen pointer-events-none absolute inset-0" />
+          <span aria-hidden className="card-sheen pointer-events-none absolute inset-0 z-0 rounded-[inherit]" />
         </>
       )}
-      {clickable ? <span className="relative block">{children}</span> : children}
+      {clickable || sheeny ? <span className="relative z-10 block">{children}</span> : children}
     </div>
   );
 });
