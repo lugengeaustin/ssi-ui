@@ -1,6 +1,6 @@
 {
   "name": "@ssi/ui",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": false,
   "description": "Sub-Sahara Institute shared React UI kit (Calm Studio primitives) for the Sahara app suite.",
   "license": "UNLICENSED",
@@ -14,7 +14,8 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "smoke": "node test/smoke.mjs"
   },
   "peerDependencies": {
     "react": ">=18",
