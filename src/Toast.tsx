@@ -19,10 +19,16 @@ type Listener = (toasts: ToastItem[]) => void;
 
 // Tiny external store so toast() works from anywhere (no context required),
 // while <Toaster /> subscribes and renders. One Toaster per app.
+const MAX_TOASTS = 5;
+
 const store = (() => {
   let toasts: ToastItem[] = [];
   let seq = 0;
   const listeners = new Set<Listener>();
+  // Track each toast's auto-dismiss timer so a manual dismiss (or unmount) can
+  // clear it — otherwise the timer fires after the toast is already gone,
+  // churning the store and risking "state update on unmounted" noise.
+  const timers = new Map<number, ReturnType<typeof setTimeout>>();
   const emit = () => listeners.forEach((l) => l([...toasts]));
 
   return {
@@ -36,13 +42,22 @@ const store = (() => {
     add(t: Omit<ToastItem, "id">) {
       const id = ++seq;
       toasts = [...toasts, { ...t, id }];
+      // Cap the visible stack under rapid toast() calls — drop the oldest.
+      while (toasts.length > MAX_TOASTS) {
+        const dropped = toasts[0];
+        toasts = toasts.slice(1);
+        const h = timers.get(dropped.id);
+        if (h) { clearTimeout(h); timers.delete(dropped.id); }
+      }
       emit();
       if (t.duration > 0) {
-        setTimeout(() => store.dismiss(id), t.duration);
+        timers.set(id, setTimeout(() => store.dismiss(id), t.duration));
       }
       return id;
     },
     dismiss(id: number) {
+      const h = timers.get(id);
+      if (h) { clearTimeout(h); timers.delete(id); }
       toasts = toasts.filter((t) => t.id !== id);
       emit();
     },

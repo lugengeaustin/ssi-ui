@@ -27,6 +27,19 @@ export function Menu({ trigger, items, align = "start", className }: MenuProps) 
   const [open, setOpen] = React.useState(false);
   const rootRef = React.useRef<HTMLDivElement>(null);
 
+  // Restore focus to the trigger when the menu closes (the component promises
+  // "focus returns to trigger" but never did it — focus was left on <body> after
+  // Esc/select, stranding keyboard users). Query the trigger by its aria hook.
+  const wasOpen = React.useRef(false);
+  React.useEffect(() => {
+    if (wasOpen.current && !open) {
+      rootRef.current
+        ?.querySelector<HTMLElement>('[aria-haspopup="menu"]')
+        ?.focus?.();
+    }
+    wasOpen.current = open;
+  }, [open]);
+
   React.useEffect(() => {
     if (!open) return;
     function onDoc(e: MouseEvent) {

@@ -77,10 +77,10 @@ describe("Card — onClick (clickable)", () => {
 });
 
 describe("Card — interactive prop (no onClick)", () => {
-  // NOTE ON REAL API: role/tabindex/keyboard wiring is gated on `clickable && onClick`.
-  // `interactive` alone marks the card clickable (visual affordance: card-interactive,
-  // cursor-pointer, sheen) but does NOT add role=button / tabIndex, since there is no
-  // handler to invoke. This matches the source in src/Card.tsx.
+  // NOTE ON REAL API: a11y wiring is gated on `clickable` (interactive OR onClick).
+  // `interactive` promises a clickable affordance, so the card MUST be keyboard
+  // reachable (role=button, tabIndex=0) even when the click is delegated — a
+  // pointer/lift-styled card no keyboard/AT user can reach would be an a11y bug.
   it("applies the interactive visual affordance classes", () => {
     render(<Card interactive>look interactive</Card>);
     const el = screen.getByText("look interactive").closest("div")!;
@@ -88,11 +88,11 @@ describe("Card — interactive prop (no onClick)", () => {
     expect(el.className).toContain("cursor-pointer");
   });
 
-  it("does not add role=button or tabindex without an onClick handler", () => {
+  it("adds role=button and tabindex so an interactive card is keyboard-reachable", () => {
     render(<Card interactive>look interactive</Card>);
     const el = screen.getByText("look interactive").closest("div")!;
-    expect(el).not.toHaveAttribute("role");
-    expect(el).not.toHaveAttribute("tabindex");
+    expect(el).toHaveAttribute("role", "button");
+    expect(el).toHaveAttribute("tabindex", "0");
   });
 
   it("still shows the sheen span (clickable visual treatment)", () => {

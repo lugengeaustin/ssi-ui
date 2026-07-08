@@ -38,10 +38,15 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(function Card(
     <div
       ref={ref}
       onClick={onClick}
-      role={clickable && onClick ? "button" : props.role}
-      tabIndex={clickable && onClick ? 0 : props.tabIndex}
+      // A11y wiring is gated on `clickable` (interactive OR onClick), not on
+      // onClick alone — an `interactive` card promises a clickable affordance, so
+      // it must be keyboard-reachable (role=button, tabIndex, Enter/Space) even
+      // when the click is delegated. Otherwise the pointer/lift styling renders
+      // for a card no keyboard/AT user can reach.
+      role={clickable ? "button" : props.role}
+      tabIndex={clickable ? 0 : props.tabIndex}
       onKeyDown={
-        clickable && onClick
+        clickable
           ? (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();

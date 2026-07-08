@@ -9,6 +9,21 @@ import { IconClose } from "./icons";
 const FOCUSABLE =
   'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])';
 
+// ── Shared overlay coordination (module-level, across all Modals/Drawers) ─────
+// Body-scroll lock is REFERENCE-COUNTED: with two stacked overlays, each used to
+// save/restore document.body.style.overflow independently, so closing the outer
+// one first would restore "" while the inner is still open — or, worse, leave the
+// body permanently `overflow:hidden`. We lock on the first open and unlock only
+// when the last closes, snapshotting the pre-lock value once.
+let scrollLockCount = 0;
+let savedOverflow = "";
+// Escape/Tab are handled ONLY by the topmost overlay. Every overlay adds its own
+// capturing document keydown listener, and stopPropagation on a document-level
+// listener does NOT stop sibling document listeners — so without this, one Escape
+// dismissed EVERY stacked overlay at once. Each overlay checks it is on top
+// before acting.
+const overlayStack: symbol[] = [];
+
 // useOverlay — shared behaviour for Modal + Drawer: portal mount, Esc to close,
 // focus trap, restore focus on close, lock body scroll.
 function useOverlay(open: boolean, onClose: () => void) {
@@ -26,8 +41,18 @@ function useOverlay(open: boolean, onClose: () => void) {
   React.useEffect(() => {
     if (!open) return;
     const prevActive = document.activeElement as HTMLElement | null;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+
+    // Reference-counted body-scroll lock (snapshot pre-lock value once).
+    if (scrollLockCount === 0) {
+      savedOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+    }
+    scrollLockCount += 1;
+
+    // Register on the overlay stack so only the topmost handles Esc/Tab.
+    const token = Symbol("overlay");
+    overlayStack.push(token);
+    const isTop = () => overlayStack[overlayStack.length - 1] === token;
 
     // Focus first focusable inside the panel.
     const id = window.setTimeout(() => {
@@ -38,6 +63,9 @@ function useOverlay(open: boolean, onClose: () => void) {
     }, 0);
 
     function onKey(e: KeyboardEvent) {
+      // Only the topmost overlay reacts — a stacked overlay must not swallow keys
+      // meant for the one above it, and Esc must close just the top one.
+      if (!isTop()) return;
       if (e.key === "Escape") {
         e.stopPropagation();
         onCloseRef.current();
@@ -65,7 +93,13 @@ function useOverlay(open: boolean, onClose: () => void) {
     document.addEventListener("keydown", onKey, true);
     return () => {
       document.removeEventListener("keydown", onKey, true);
-      document.body.style.overflow = prevOverflow;
+      // Pop this overlay off the stack (it may not be the last if unmount order
+      // differs from mount order, so filter by identity).
+      const idx = overlayStack.lastIndexOf(token);
+      if (idx !== -1) overlayStack.splice(idx, 1);
+      // Release the scroll lock only when the LAST overlay closes.
+      scrollLockCount = Math.max(0, scrollLockCount - 1);
+      if (scrollLockCount === 0) document.body.style.overflow = savedOverflow;
       window.clearTimeout(id);
       prevActive?.focus?.();
     };
