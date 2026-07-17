@@ -80,14 +80,10 @@ export type { ToolbarProps } from "./Toolbar";
 export { Skeleton, SkeletonText, SkeletonRows, SkeletonCards } from "./Skeleton";
 export type { SkeletonProps } from "./Skeleton";
 
-// Wave 1 — theme engine + motion helpers.
-export {
-  ThemeProvider,
-  ThemeToggle,
-  useTheme,
-  accentPalette,
-  THEME_INIT_SCRIPT,
-} from "./theme";
+// Wave 1 — theme engine + motion helpers. THEME_INIT_SCRIPT lives in a
+// server-safe module so root layouts (server components) can import it.
+export { THEME_INIT_SCRIPT, THEME_STORAGE_KEY } from "./themeScript";
+export { ThemeProvider, ThemeToggle, useTheme, accentPalette } from "./theme";
 export type { ThemeMode, ResolvedTheme, ThemeProviderProps, AccentPalette } from "./theme";
 export { useOptimisticAction } from "./useOptimisticAction";
 export type { OptimisticRun } from "./useOptimisticAction";

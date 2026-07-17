@@ -1,13 +1,8 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import { render, screen, renderHook, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  ThemeProvider,
-  ThemeToggle,
-  useTheme,
-  accentPalette,
-  THEME_INIT_SCRIPT,
-} from "../src/theme";
+import { ThemeProvider, ThemeToggle, accentPalette } from "../src/theme";
+import { THEME_INIT_SCRIPT } from "../src/themeScript";
 import { useOptimisticAction } from "../src/useOptimisticAction";
 
 // jsdom has no matchMedia — stub a light-mode media query.

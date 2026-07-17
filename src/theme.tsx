@@ -19,14 +19,13 @@ import { cn } from "./cn";
 //   • userTheme — the value read back from user_metadata; adopted once on mount
 //     when it differs from the device cache (new device / cleared storage).
 
+import { THEME_STORAGE_KEY } from "./themeScript";
+
 export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
-const STORAGE_KEY = "ssi-theme";
+const STORAGE_KEY = THEME_STORAGE_KEY;
 const MODES: ThemeMode[] = ["light", "dark", "system"];
-
-/** Inline <head> script — sets data-theme from the cache before first paint. */
-export const THEME_INIT_SCRIPT = `(function(){try{var m=localStorage.getItem("${STORAGE_KEY}")||"system";var d=m==="dark"||(m==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";}catch(e){}})();`;
 
 function isMode(v: unknown): v is ThemeMode {
   return v === "light" || v === "dark" || v === "system";
