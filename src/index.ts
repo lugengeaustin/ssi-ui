@@ -77,8 +77,20 @@ export type { StatCardProps } from "./StatCard";
 export { Toolbar } from "./Toolbar";
 export type { ToolbarProps } from "./Toolbar";
 
-export { Skeleton, SkeletonText } from "./Skeleton";
+export { Skeleton, SkeletonText, SkeletonRows, SkeletonCards } from "./Skeleton";
 export type { SkeletonProps } from "./Skeleton";
+
+// Wave 1 — theme engine + motion helpers.
+export {
+  ThemeProvider,
+  ThemeToggle,
+  useTheme,
+  accentPalette,
+  THEME_INIT_SCRIPT,
+} from "./theme";
+export type { ThemeMode, ResolvedTheme, ThemeProviderProps, AccentPalette } from "./theme";
+export { useOptimisticAction } from "./useOptimisticAction";
+export type { OptimisticRun } from "./useOptimisticAction";
 
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
