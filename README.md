@@ -21,10 +21,58 @@ and helpers: `Button`, `Card` (+ `Panel`, `Section`, `PageHeader`), `Pill`
 `TextLink` (+ `linkClass`, `textLinkClass`), the inline `icons` set, `cn`, and
 the `STATUS_TONES` / `toneForStatus` status helpers.
 
+Plus **SSI Find** — the suite-wide ⌘K command palette: `FindPalette`,
+`FindButton`, `useFindPalette` / `openFind` / `closeFind`, and the server-safe
+routing helpers `FIND_APP_BASE_URLS`, `FIND_APP_LABELS`, `findDestination`,
+`groupFindResults`, `findHighlight`, `safeFindPath`, `toFindResults`.
+
 The kit is framework-agnostic: it depends only on `react`, `react-dom`, and
 (peer) `lucide-react`. `TextLink` renders a styled `<a>` — apps that need
 client-side prefetch can wrap their router's `Link` and apply `linkClass()` or
 the `textLinkClass` string.
+
+## SSI Find (⌘K)
+
+One search box over the whole suite, backed by the live
+`public.ssi_search(q, max_rows)` RPC in the shared Supabase project (tenant and
+staff scoping happen server-side; anon callers are refused).
+
+Like `ThemeProvider`, the palette never imports `@supabase/supabase-js` — the
+app hands in the browser client it already has:
+
+```tsx
+"use client";
+import { FindPalette, FindButton } from "@ssi/ui";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
+const supabase = createClient();
+
+export function Topbar() {
+  const router = useRouter();
+  return (
+    <>
+      <FindButton />
+      <FindPalette
+        client={supabase}
+        currentApp="e-office"          // results from THIS app navigate in-app
+        onNavigate={router.push}       // …via the router, no full page load
+      />
+    </>
+  );
+}
+```
+
+Mount **one** `<FindPalette />` per app shell. `<FindButton />` (or `openFind()`
+from anywhere) opens the same palette; ⌘K / Ctrl+K toggles it. Apps that want
+explicit state can drive it with `open` / `onOpenChange` instead.
+
+Cross-app results are joined onto `FIND_APP_BASE_URLS` (production hosts).
+Override any entry for preview deploys or custom domains:
+
+```tsx
+<FindPalette … baseUrls={{ "e-mteja": "https://emteja-preview.vercel.app" }} />
+```
 
 ## How it's consumed
 
@@ -63,6 +111,7 @@ Design tokens (colours like `text-blue`, `--ring`, `transition-calm`) come from
 
 ## Version note
 
-`v1.0.0` — first extraction. Pin apps to the exact tag; bump the tag and the
+`v1.0.0` — first extraction. `v1.1.0` — theme engine + motion. `v1.2.0` — SSI
+Find (⌘K palette). Pin apps to the exact tag; bump the tag and the
 `package.json` tarball URLs together when releasing a new version (matching the
 `@ssi/brand` release pattern).

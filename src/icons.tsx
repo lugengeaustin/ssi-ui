@@ -90,3 +90,20 @@ export const IconInbox = (p: IconProps) => (
 export const IconBell = (p: IconProps) => (
   <Svg {...p}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></Svg>
 );
+
+// ── Record glyphs (SSI Find result kinds) ────────────────────────────────────
+export const IconFile = (p: IconProps) => (
+  <Svg {...p}><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" /><path d="M14 3v5h5" /></Svg>
+);
+export const IconFileText = (p: IconProps) => (
+  <Svg {...p}><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" /><path d="M14 3v5h5M9 13h6M9 17h4" /></Svg>
+);
+export const IconBook = (p: IconProps) => (
+  <Svg {...p}><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z" /><path d="M19 17H6a2 2 0 0 0-2 2" /></Svg>
+);
+export const IconReceipt = (p: IconProps) => (
+  <Svg {...p}><path d="M6 2.5v19l2-1.4 2 1.4 2-1.4 2 1.4 2-1.4 2 1.4v-19l-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4z" /><path d="M9.5 9h5M9.5 13h5" /></Svg>
+);
+export const IconClipboard = (p: IconProps) => (
+  <Svg {...p}><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2" /><rect x="9" y="2.5" width="6" height="4" rx="1.2" /></Svg>
+);

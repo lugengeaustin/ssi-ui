@@ -91,6 +91,31 @@ export type { OptimisticRun } from "./useOptimisticAction";
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
 
+// ── SSI Find — the suite-wide ⌘K command palette ─────────────────────────────
+// <FindPalette /> is a client component; it takes the app's Supabase browser
+// client as a prop (the package itself never imports supabase-js). The pure
+// routing/grouping helpers in ./find are server-safe.
+export { FindPalette, FindButton, useFindPalette, openFind, closeFind } from "./FindPalette";
+export type { FindPaletteProps, FindButtonProps, FindSearchClient } from "./FindPalette";
+export {
+  FIND_APP_BASE_URLS,
+  FIND_APP_LABELS,
+  findAppLabel,
+  findDestination,
+  findHighlight,
+  groupFindResults,
+  safeFindPath,
+  toFindResults,
+} from "./find";
+export type {
+  FindApp,
+  FindKind,
+  FindResult,
+  FindGroup,
+  FindDestination,
+  FindHighlightSegment,
+} from "./find";
+
 // Link primitive — both the emteja `linkClass()` helper and the eresearch
 // `textLinkClass` string constant are exported so every app's barrel resolves.
 export { TextLink, linkClass, textLinkClass } from "./TextLink";
